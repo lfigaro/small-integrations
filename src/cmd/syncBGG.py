@@ -30,7 +30,6 @@ class syncBGG:
 
 		self.event = event
 
-
 	def execute(self):
 		url = os.environ['bgg_url'] + 'thing?type=boardgame&id='
 
@@ -63,6 +62,7 @@ class syncBGG:
 						{"language":"pt", "text":description_pt},
 						{"language":"en", "text":description}]
 					bgsList.append(bg)
+					#logger.info(bg)
 				
 				boardgameclass = boardgame(event=self.event)
 				ret = boardgameclass.set_boardgames(bgsList)
@@ -80,36 +80,36 @@ class syncBGG:
 		return
 
 	def split_by_n(self, seq, n):
-	    while seq:
-	        yield seq[:n]
-	        seq = seq[n:]
+		while seq:
+			yield seq[:n]
+			seq = seq[n:]
 
 	def translate_text(self, text):
 		if len(text) > 2000:
 			text = self.split_by_n(text, 2000)
 			ret = ''
 			for t in text:
-				response = requests.post("https://libretranslate.com/translate", 
+				response = requests.post(os.environ['translate_url'] + "translate", 
 					headers = { "Content-Type": "application/json" }, 
 					json = {
 						"q": t,
 						"source": "en",
 						"target": "pt",
 						"format": "text",
-						"api_key": "1f78fcea-9eb4-4473-b5d1-5b4fdfe04a00"
+						"api_key": os.environ['translate_key']
 					}
 				)
-			ret+=(response.json()['translatedText'])
+				ret+=(response.json()['translatedText'])
 
 		else:
-			response = requests.post("https://libretranslate.com/translate", 
+			response = requests.post(os.environ['translate_url'] + "translate", 
 				headers = { "Content-Type": "application/json" }, 
 				json = {
 					"q": text,
 					"source": "en",
 					"target": "pt",
 					"format": "text",
-					"api_key": "1f78fcea-9eb4-4473-b5d1-5b4fdfe04a00"
+					"api_key": os.environ['translate_key']
 				}
 			)
 			
@@ -118,11 +118,11 @@ class syncBGG:
 		return(ret)
 
 	def find_language(self, name):
-		response = requests.post("https://libretranslate.com/detect", 
+		response = requests.post(os.environ['translate_url'] + "detect", 
 			headers = { "Content-Type": "application/json" }, 
 			json = {
 				"q": name['@value'],
-				"api_key": "1f78fcea-9eb4-4473-b5d1-5b4fdfe04a00"
+				"api_key": os.environ['translate_key']
 			}
 		)
 
@@ -130,6 +130,7 @@ class syncBGG:
 		return name
 
 	def find_name_languages(self, bg):
+		#logger.info(bg)
 		name = bg["name"]
 		if isinstance(name, dict):
 			bg['name'] = self.find_language(name)
