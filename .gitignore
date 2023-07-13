@@ -1,5 +1,0 @@
-# Ignore local libs, if theres any
-lib/
-.DS_Store
-.vscode/
-.idea/
