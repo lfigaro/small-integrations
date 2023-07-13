@@ -32,7 +32,7 @@ class syncBGG:
 
 
 	def execute(self):
-		url = os.environ['url']
+		url = os.environ['bgg_url'] + 'thing?type=boardgame&id='
 
 		# para testes
 		i = 0
@@ -46,15 +46,15 @@ class syncBGG:
 
 				response = requests.get(url) #, auth=(os.environ['user'], os.environ['pass']), headers=headers)
 				bgs = xmltodict.parse(response.text)
-				# logger.info(bgs)
+				#logger.info(bgs)
 
 				table = boto3.resource('dynamodb').Table("boardgames")
 				table.load()
 
-				for bg in bgs["boardgames"]["boardgame"]:
+				for bg in bgs["items"]["item"]:
 					bg = self.find_name_languages(bg)
 
-					bg['_id']=bg['@objectid']
+					bg['_id']=bg['@id']
 
 					description = bg["description"]
 					description_pt = self.translate_text(description)
@@ -72,7 +72,7 @@ class syncBGG:
 				else:
 					logger.error('set_boardgame response error: ' + str(ret.status_code) + ' - ' + ret.text)
 
-				url = os.environ['url']
+				url = os.environ['bgg_url'] + 'thing?type=boardgame&id='
 				bgsList = []
 
 			url += (str(n) + ',')
@@ -121,7 +121,7 @@ class syncBGG:
 		response = requests.post("https://libretranslate.com/detect", 
 			headers = { "Content-Type": "application/json" }, 
 			json = {
-				"q": name['#text'],
+				"q": name['@value'],
 				"api_key": "1f78fcea-9eb4-4473-b5d1-5b4fdfe04a00"
 			}
 		)

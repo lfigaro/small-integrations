@@ -50,31 +50,6 @@ class boardgame:
 			data=payload)
 		return response.json()
 
-	def unmarshal_response(self, ddb_response_item):
-	    unmarshalled = {}
-
-	    for key, value in ddb_response_item.items():
-	        if key in ['S', 'BOOL']:
-	            return value
-	        elif key == 'N':
-	            try:
-	                return int(value)
-	            except:
-	                return float(value)
-	        elif key == 'M':
-	            # If the DDB Item is a dict, recursively unpack dict
-	            return self.unmarshal_response(value)
-	        elif key == 'L':
-	            # If the DDB Item is a list, return unmarshalled value for each item in list
-	            list_items = []
-	            for item in value:
-	                list_items.append(self.unmarshal_response(item))
-	            return list_items
-	        else:
-	            unmarshalled[key] = self.unmarshal_response(value)
-
-	    return unmarshalled
-
 	def set_boardgame(self, bg):
 			payload = json.dumps({
 			    "collection": "boardgames",
