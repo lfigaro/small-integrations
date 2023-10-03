@@ -2,4 +2,4 @@ requests
 slackclient
 boto
 xmltodict
-urllib3==1.26.6
+urllib3==1.26.17
